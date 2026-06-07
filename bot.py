@@ -38,17 +38,24 @@ keyboard = ReplyKeyboardMarkup(
 async def start(message: Message):
     users.add(message.from_user.id)
 
+    # Используем тройные кавычки для многострочного текста
+    text_message = """⚽ <b>eFootball Match Bot</b>
+
+🔥 Добро пожаловать!
+🎮 Здесь ты можешь найти соперника и играть матчи
+
+🏆 Участвуй в турнирах
+💰 Возможны призовые игры
+
+📢 Наш канал турниров:
+@kpl_efootball_tournament
+
+👇 Нажми кнопку ниже и начинай игру!"""
+
     await message.answer(
-        "⚽ <b>eFootball Match Bot</b>\n\n"
-        "🔥 Добро пожаловать!\n"
-        "🎮 Поиск соперников доступен ниже",
-        "🏆 Участвуй в турнирах \n"
-        "💰 Возможны призовые игры\n\n"
-        "📢 И Наш канал турниров: \n"
-        "@kpl_efootball_tournament\n\n"
-        " 👇 Нажми кнопку ниже и начинай игру! ",
+        text=text_message,
         reply_markup=keyboard
-    )  
+    )
 
 # ---------------- FIND MATCH ----------------
 @dp.message(F.text == "🔍 Поиск матча")
