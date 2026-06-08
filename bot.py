@@ -75,7 +75,7 @@ LOCALIZATION = {
         "match_ended": "🏁 Матч завершён",
         "opponent_ended": "🏁 Соперник завершил матч",
         "relay_prefix": "💬 Соперник:"
-    ),
+    },
     "🇬🇧 English": {
         "find_match": "🔍 Find Match",
         "end_match": "❌ End Match",
