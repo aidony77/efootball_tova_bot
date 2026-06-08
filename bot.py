@@ -118,7 +118,7 @@ LOCALIZATION = {
         "ask_score": "⚽ Матч аяқталды! Өтініш, өз тарапыңыздан болған матч есебін енгізіңіз.\nФормат: <code>3-2</code> немесе <code>3:2</code> (Бірінші ӨЗ голыңыз):",
         "bad_format": "❌ Қате формат! Есепті тек мына үлгіде жазыңыз: 2-1 немесе 2:1",
         "wait_opponent_score": "⏳ Сіздің есебіңіз қабылданды. Қарсыластың есеп енгізуін күтіңіз...",
-        "score_mismatch": "⚠️ Есеп сәйкес келмеді! Сіз [{u_score}] енгіздіңіз, ал қарсылас басқа есеп жазды. Өз голдарыңызды бірінші қойып, қайта енгізіңіз:",
+        "score_mismatch": "⚠️ Есеп сәйкес келмеді! Сіз [{u_score}] енгіздіңіз, ал қарсылас басқаша жазды. Өз голдарыңызды бірінші қойып, қайта енгізіңіз:",
         "match_saved": "✅ Матч сәтті тіркелді! Есеп: {score}. Статистикаңыз жаңартылды!",
         "score_0_0": "❌ Ойын ойналмай бірден аяқталса (0-0), статистика есептелмейді.",
         "rules_text": (
@@ -149,7 +149,7 @@ LOCALIZATION = {
         "searching": "🔎 Ищем соперника...",
         "found_host": "🟢 Матч найден! Ты ХОСТ 🎮\n\nСоздай комнату и отправь код сопернику прямо сюда!",
         "found_player": "🟡 Матч найден! Ты ИГРОК 🎮\n\nЖди код комнаты от соперника в этом чате!",
-        "no_active_match": "❌ У тебя нет active матча",
+        "no_active_match": "❌ У тебя нет активного матча",
         "search_cancelled": "🛑 Поиск отменен",
         "relay_prefix": "💬 Соперник:",
         "profile_text": "👤 <b>Твой профиль:</b>\n\nИмя: {name}\n🎮 Матчей: <b>{matches}</b>\n✅ Побед: {wins} | 🤝 Ничьих: {draws} | ❌ Поражений: {losses}",
@@ -395,19 +395,19 @@ async def process_score(message: Message, state: FSMContext):
     user_score = score_votes[user_id]
     opponent_score = score_votes[opponent]
 
-    u_goals, op_goals = map(int, user_score.split("-"))
-    op_goals_check, u_goals_check = map(int, opponent_score.split("-"))
+    # ЖАҢАРТЫЛҒАН, МІНСІЗ САЛЫСТЫРУ КҮШІНЕ ЕНДІ:
+    my_goals, his_goals = map(int, user_score.split("-"))
+    op_my_goals, op_his_goals = map(int, opponent_score.split("-"))
 
-    # ДҰРЫС ЗЕРКАЛЬНЫЙ САЛЫСТЫРУ КҮШІНЕ ЕНДІ:
-    if u_goals == op_goals_check and op_goals == u_goals_check:
-        if u_goals == 0 and op_goals == 0:
+    if my_goals == op_his_goals and his_goals == op_my_goals:
+        if my_goals == 0 and his_goals == 0:
             await message.answer(texts["score_0_0"])
             await bot.send_message(opponent, op_texts["score_0_0"])
         else:
-            if u_goals > op_goals:
+            if my_goals > his_goals:
                 update_stats(user_id, "win")
                 update_stats(opponent, "loss")
-            elif u_goals < op_goals:
+            elif my_goals < his_goals:
                 update_stats(user_id, "loss")
                 update_stats(opponent, "win")
             else:
@@ -426,7 +426,6 @@ async def process_score(message: Message, state: FSMContext):
         op_context = dp.fsm.get_context(bot, chat_id=opponent, user_id=opponent)
         await op_context.clear()
     else:
-        # Есеп сәйкес келмесе, бот ескі жазбаларды базадан толық тазалайды:
         score_votes.pop(user_id, None)
         score_votes.pop(opponent, None)
         
