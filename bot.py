@@ -51,7 +51,7 @@ LOCALIZATION = {
         "match_ended": "🏁 Матч аяқталды",
         "opponent_ended": "🏁 Қарсылас матчты аяқтады",
         "relay_prefix": "💬 Қарсылас:"
-    ),
+    },
     "🇷🇺 Русский": {
         "find_match": "🔍 Поиск матча",
         "end_match": "❌ Завершить матч",
