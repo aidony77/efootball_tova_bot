@@ -118,7 +118,7 @@ LOCALIZATION = {
         "ask_score": "⚽ Матч аяқталды! Өтініш, өз тарапыңыздан болған матч есебін енгізіңіз.\nФормат: <code>3-2</code> немесе <code>3:2</code> (Бірінші ӨЗ голыңыз):",
         "bad_format": "❌ Қате формат! Есепті тек мына үлгіде жазыңыз: 2-1 немесе 2:1",
         "wait_opponent_score": "⏳ Сіздің есебіңіз қабылданды. Қарсыластың есеп енгізуін күтіңіз...",
-        "score_mismatch": "⚠️ Есеп сәйкес келмеді! Сіз {u_score}, ал қарсылас {op_score} деп жазды. Өз голдарыңызды бірінші қойып, қайта енгізіңіз:",
+        "score_mismatch": "⚠️ Есеп сәйкес келмеді! Сіз [{u_score}] енгіздіңіз, ал қарсылас басқа есеп жазды. Өз голдарыңызды бірінші қойып, қайта енгізіңіз:",
         "match_saved": "✅ Матч сәтті тіркелді! Есеп: {score}. Статистикаңыз жаңартылды!",
         "score_0_0": "❌ Ойын ойналмай бірден аяқталса (0-0), статистика есептелмейді.",
         "rules_text": (
@@ -126,7 +126,7 @@ LOCALIZATION = {
             "1️⃣ <b>Әділ ойын (Fair Play):</b>\n"
             "Матч біткен соң екі ойыншы да есепті ТУРА енгізуі тиіс. Бірінші ӨЗІҢІЗДІҢ салған голыңыз жазылады.\n\n"
             "2️⃣ <b>Есепті енгізу форматы:</b>\n"
-            "Есепті <code>2-1</code> немесе <code>2:1</code> форматында жазуға болады (бот қос нүктені автоматты түрде түсінеді). Басқа артық сөз жазуға болмайды. Егер сіз ұтылсаңыз, есепті керісінше жазуға болады (мысалы, 1-3).\n\n"
+            "Есепті <code>2-1</code> немесе <code>2:1</code> форматында жазуға болады. Басқа артық сөз жазуға болмайды. Егер сіз ұтылсаңыз, есепті керісінше жазуға болады (мысалы, 1-3).\n\n"
             "3️⃣ <b>Алдамшылықтан қорғау:</b>\n"
             "Егер екі ойыншының есебі бір-біріне айналы (зеркально) сәйкес келмесе, бот ұпай қоспайды. Қарсылас өтірік жазса, скриншотпен админге хабарласыңыз.\n\n"
             "4️⃣ <b>Накруткаға тыйым салу:</b>\n"
@@ -141,7 +141,7 @@ LOCALIZATION = {
         "find_match": "🔍 Поиск матча",
         "end_match": "❌ Завершить матч",
         "profile": "👤 Мой профиль",
-        "top_players": "🏆 Top игроки",
+        "top_players": "🏆 Топ игроки",
         "rules": "📜 Правила",
         "welcome": "⚽ <b>eFootball Match Bot</b>\n\n🔥 Добро пожаловать!\n📢 Наш канал: @tova_efootball_bot_news",
         "already_in_match": "❌ Ты уже в матче",
@@ -149,7 +149,7 @@ LOCALIZATION = {
         "searching": "🔎 Ищем соперника...",
         "found_host": "🟢 Матч найден! Ты ХОСТ 🎮\n\nСоздай комнату и отправь код сопернику прямо сюда!",
         "found_player": "🟡 Матч найден! Ты ИГРОК 🎮\n\nЖди код комнаты от соперника в этом чате!",
-        "no_active_match": "❌ У тебя нет активного матча",
+        "no_active_match": "❌ У тебя нет active матча",
         "search_cancelled": "🛑 Поиск отменен",
         "relay_prefix": "💬 Соперник:",
         "profile_text": "👤 <b>Твой профиль:</b>\n\nИмя: {name}\n🎮 Матчей: <b>{matches}</b>\n✅ Побед: {wins} | 🤝 Ничьих: {draws} | ❌ Поражений: {losses}",
@@ -157,11 +157,11 @@ LOCALIZATION = {
         "ask_score": "⚽ Матч завершен! Пожалуйста, введите счет со своей стороны.\nФормат: <code>3-2</code> или <code>3:2</code> (Первым СВОИ голы):",
         "bad_format": "❌ Неверный формат! Введите счет в виде: 2-1 или 2:1",
         "wait_opponent_score": "⏳ Ваш счет принят. Ожидайте, пока соперник введет свой счет...",
-        "score_mismatch": "⚠️ {u_score}, а соперник {op_score}. Введите правильный счет заново (Свои голы первыми):",
+        "score_mismatch": "⚠️ Счет не совпал! Вы ввели [{u_score}], а соперник ввел другие данные. Введите правильный счет заново (Свои голы первыми):",
         "match_saved": "✅ Матч успешно засчитан! Счет: {score}. Статистика обновлена!",
         "score_0_0": "❌ Если матч завершен без игры (0-0), статистика не начисляется.",
         "rules_text": (
-            "📜 <b>ОФИЦИАЛЬНЫЕ П ПРАВИЛА БОТА</b>\n\n"
+            "📜 <b>ОФИЦИАЛЬНЫЕ ПРАВИЛА БОТА</b>\n\n"
             "1️⃣ <b>Честная игра (Fair Play):</b>\n"
             "После матча вводите ЧЕСТНЫЙ счет. Первым всегда указываются СВОИ голы.\n\n"
             "2️⃣ <b>Формат ввода счета:</b>\n"
@@ -169,9 +169,9 @@ LOCALIZATION = {
             "3️⃣ <b>Защита от обмана:</b>\n"
             "Если счета игроков не сойдутся зеркально, бот потребует ввести счет заново. В случае намеренного обмана пишите админу.\n\n"
             "4️⃣ <b>Запрет на накрутку:</b>\n"
-            "Запрещено завершать матч со счетом <code>0-0</code> сразу после старта без игры. Такие матчи не приносят очки в рейтинг.\n\n"
+            "Запрещено сразу завершать матч со счетом <code>0-0</code> ради накрутки матчей. Такие игры не засчитываются.\n\n"
             "5️⃣ <b>Уважение:</b>\n"
-            "За оскорбление соперника в чате — вечный БАН.\n\n"
+            "За оскорбление соперника через чат бота — мгновенный и вечный БАН.\n\n"
             "📢 Канал турнира: kpl_efootball_tournament\n"
             "📢 Новости бота: @tova_efootball_bot_news"
         )
@@ -196,7 +196,7 @@ LOCALIZATION = {
         "ask_score": "⚽ Match ended! Please enter the score from your side.\nFormat: <code>3-2</code> or <code>3:2</code> (YOUR goals first):",
         "bad_format": "❌ Invalid format! Enter the score like: 2-1 or 2:1",
         "wait_opponent_score": "⏳ Your score is saved. Waiting for your opponent to enter the score...",
-        "score_mismatch": "⚠️ Score mismatch! You entered {u_score}, but opponent entered {op_score}. Re-enter correctly (Your goals first):",
+        "score_mismatch": "⚠️ Score mismatch! You entered [{u_score}], but opponent entered different data. Re-enter correctly (Your goals first):",
         "match_saved": "✅ Match successfully saved! Score: {score}. Your stats are updated!",
         "score_0_0": "❌ If the match is ended without playing (0-0), stats will not be counted.",
         "rules_text": (
@@ -398,6 +398,7 @@ async def process_score(message: Message, state: FSMContext):
     u_goals, op_goals = map(int, user_score.split("-"))
     op_goals_check, u_goals_check = map(int, opponent_score.split("-"))
 
+    # ДҰРЫС ЗЕРКАЛЬНЫЙ САЛЫСТЫРУ КҮШІНЕ ЕНДІ:
     if u_goals == op_goals_check and op_goals == u_goals_check:
         if u_goals == 0 and op_goals == 0:
             await message.answer(texts["score_0_0"])
@@ -425,11 +426,12 @@ async def process_score(message: Message, state: FSMContext):
         op_context = dp.fsm.get_context(bot, chat_id=opponent, user_id=opponent)
         await op_context.clear()
     else:
+        # Есеп сәйкес келмесе, бот ескі жазбаларды базадан толық тазалайды:
         score_votes.pop(user_id, None)
         score_votes.pop(opponent, None)
         
-        await message.answer(texts["score_mismatch"].format(u_score=user_score, op_score=opponent_score))
-        await bot.send_message(opponent, op_texts["score_mismatch"].format(u_score=opponent_score, op_score=user_score))
+        await message.answer(texts["score_mismatch"].format(u_score=user_score))
+        await bot.send_message(opponent, op_texts["score_mismatch"].format(u_score=opponent_score))
 
 # ---------------- RELAY CHAT ----------------
 @dp.message()
