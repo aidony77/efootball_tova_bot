@@ -35,7 +35,6 @@ DB_FILE = "bot_database.db"
 def init_db():
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
-    # Деректер базасына бұғаттау жүйесі үшін 'is_banned' қосылды
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
             user_id INTEGER PRIMARY KEY,
@@ -198,7 +197,7 @@ LOCALIZATION = {
             "2️⃣ <b>Есепті енгізу форматы:</b>\n"
             "Есепті <code>2-1</code> немесе <code>2:1</code> форматында жазуға болады. Басқа артық сөз жазуға болмайды. Егер сіз ұтылсаңыз, есепті керісінше жазуға болады (мысалы, 1-3).\n\n"
             "3️⃣ <b>Алдамшылықтан қорғау:</b>\n"
-            "Егер екі ойыншының есебі бір-біріне айналы (зеркально) сәйкес келмесе, бот ұпай қоспайды. Қарсылас өтірік жазса, скриншотпом админге хабарласыңыз.\n\n"
+            "Егер екі ойыншының есебі бір-біріне айналы (зеркально) сәйкес келмесе, бот ұпай қоспайды. Қарсылас өтірік жазса, скриншотпен админге хабарласыңыз.\n\n"
             "4️⃣ <b>Накруткаға тыйым салу:</b>\n"
             "Ойынды бастап, бірден <code>0-0</code> қылып аяқтай салуға болмайды. Ондай матчтар есептелмейді.\n\n"
             "5️⃣ <b>Сыйластық:</b>\n"
@@ -211,7 +210,7 @@ LOCALIZATION = {
         "find_match": "🔍 Поиск матча",
         "end_match": "❌ Завершить матч",
         "profile": "👤 Мой профиль",
-        "top_players": "🏆 Top игроки",
+        "top_players": "🏆 Топ игроки",
         "rules": "📜 Правила",
         "welcome": "⚽ <b>eFootball Match Bot</b>\n\n🔥 Добро пожаловать!\n📢 Наш канал: @tova_efootball_bot_news",
         "already_in_match": "❌ Ты уже в матче",
@@ -219,12 +218,12 @@ LOCALIZATION = {
         "searching": "🔎 Ищем соперника...",
         "found_host": "🟢 Match найден! Ты ХОСТ 🎮\n\nСоздай комнату и отправь код сопернику прямо сюда!",
         "found_player": "🟡 Match найден! Ты ИГРОК 🎮\n\nЖди код комнаты от соперника в этом чате!",
-        "no_active_match": "❌ У тебя нет активногольного матча",
+        "no_active_match": "❌ У тебя нет активного матча",
         "search_cancelled": "🛑 Поиск отменен",
         "relay_prefix": "💬 Соперник:",
         "profile_text": "👤 <b>Твой профиль:</b>\n\nИмя: {name}\n🎮 Матчей: <b>{matches}</b>\n✅ Побед: {wins} | 🤝 Ничьих: {draws} | ❌ Поражений: {losses}\n\n📊 <b>Статистика бота:</b>\n🟢 В сети: <b>{online}</b>\n👥 Всего игроков: <b>{total}</b>",
         "top_title": "🏆 <b>ТОП ИГРОКОВ (ПО ПОБЕДАМ):</b>\n\n",
-        "ask_score": "⚽ Матч завершен! Пожалуйста, введите счет со своей стороны.\nFormat: <code>3-2</code> или <code>3:2</code> (Первым СВОИ голы):",
+        "ask_score": "⚽ Match завершен! Пожалуйста, введите счет со своей стороны.\nFormat: <code>3-2</code> или <code>3:2</code> (Первым СВОИ голы):",
         "bad_format": "❌ Неверный формат! Введите счет в виде: 2-1 или 2:1",
         "wait_opponent_score": "⏳ Ваш счет принят. Ожидайте, пока соперник введет свой счет...",
         "score_mismatch": "⚠️ Счет не совпал! Вы ввели [{u_score}], а соперник ввел другие данные. Введите правильный счет заново (Свои голы первыми):",
@@ -319,7 +318,7 @@ async def report_user(message: Message):
     target = args[1]
     reason = args[2]
     
-    report_text = f"🚨 <b>ЖАҢА ШАҒЫМ (REPORT)!</b>\n\n💬 Кімнен: {reporter} (ID: {user_id})\n🎯 Кімге: {target}\n📝 Себебі: {reason}"
+   report_text = f"🚨 <b>ЖАҢА ШАҒЫМ (REPORT)!</b>\n\n💬 Кімнен: {reporter} (ID: {user_id})\n🎯 Кімге: {target}\n📝 Себебі: {reason}"
     try:
         await bot.send_message(chat_id=ADMIN_ID, text=report_text)
         await message.answer("✅ Шағымыңыз қабылданды және әкімшіге (админге) жолданды. Тексеріс жүргізіледі!")
@@ -403,7 +402,6 @@ async def find_match(message: Message):
     update_online(user_id)
     user_data = get_user(user_id)
     
-    # БАН тексеру
     if user_data and user_data.get("is_banned", 0) == 1:
         await message.answer("❌ <b>Сіз бұғатталғансыз (БАН)!</b> Матч іздеу мүмкін емес.")
         return
@@ -433,7 +431,6 @@ async def find_match(message: Message):
             op_data = get_user(opponent)
             op_lang = op_data["language"] if op_data else "🇷🇺 Русский"
             
-            # Қарсыластың Username немесе атын алу (Жаңа функция)
             u_chat = await bot.get_chat(user_id)
             o_chat = await bot.get_chat(opponent)
             u_name = f"@{u_chat.username}" if u_chat.username else u_chat.first_name
@@ -472,9 +469,108 @@ async def end_match_request(message: Message, state: FSMContext):
     op_lang = op_data["language"] if op_data else "🇷🇺 Русский"
 
     await state.set_state(MatchState.entering_score)
-    op_context = dp.fsm.get_context(bot, chat_id=opponent, user_
+    op_context = dp.fsm.get_context(bot, chat_id=opponent, user_id=opponent)
+    await op_context.set_state(MatchState.entering_score)
 
-    # ---------------- MAIN ----------------
+    await message.answer(texts["ask_score"])
+    await bot.send_message(opponent, LOCALIZATION[op_lang]["ask_score"])
+
+# ---------------- PROCESS SCORE ----------------
+@dp.message(MatchState.entering_score)
+async def process_score(message: Message, state: FSMContext):
+    user_id = message.from_user.id
+    update_online(user_id)
+    user_data = get_user(user_id)
+    lang = user_data["language"] if user_data else "🇷🇺 Русский"
+    texts = LOCALIZATION[lang]
+
+    if user_id not in matches:
+        await state.clear()
+        return
+
+    text = message.text.strip()
+    text = text.replace(":", "-")
+
+    if not re.match(r"^\d+-\d+$", text):
+        await message.answer(texts["bad_format"])
+        return
+
+    opponent = matches[user_id]
+    op_data = get_user(opponent)
+    op_lang = op_data["language"] if op_data else "🇷🇺 Русский"
+    op_texts = LOCALIZATION[op_lang]
+
+    score_votes[user_id] = text
+
+    if opponent not in score_votes:
+        await message.answer(texts["wait_opponent_score"])
+        return
+
+    user_score = score_votes[user_id]
+    opponent_score = score_votes[opponent]
+
+    my_goals, his_goals = map(int, user_score.split("-"))
+    op_my_goals, op_his_goals = map(int, opponent_score.split("-"))
+
+    if my_goals == op_his_goals and his_goals == op_my_goals:
+        if my_goals == 0 and his_goals == 0:
+            await message.answer(texts["score_0_0"])
+            await bot.send_message(opponent, op_texts["score_0_0"])
+        else:
+            if my_goals > his_goals:
+                update_stats(user_id, "win")
+                update_stats(opponent, "loss")
+            elif my_goals < his_goals:
+                update_stats(user_id, "loss")
+                update_stats(opponent, "win")
+            else:
+                update_stats(user_id, "draw")
+                update_stats(opponent, "draw")
+
+            await message.answer(texts["match_saved"].format(score=user_score))
+            await bot.send_message(opponent, op_texts["match_saved"].format(score=opponent_score))
+
+        matches.pop(user_id, None)
+        matches.pop(opponent, None)
+        score_votes.pop(user_id, None)
+        score_votes.pop(opponent, None)
+        
+        await state.clear()
+        op_context = dp.fsm.get_context(bot, chat_id=opponent, user_id=opponent)
+        await op_context.clear()
+    else:
+        score_votes.pop(user_id, None)
+        score_votes.pop(opponent, None)
+        
+        await message.answer(texts["score_mismatch"].format(u_score=user_score))
+        await bot.send_message(opponent, op_texts["score_mismatch"].format(u_score=opponent_score))
+
+# ---------------- RELAY CHAT ----------------
+@dp.message()
+async def relay(message: Message, state: FSMContext):
+    user_id = message.from_user.id
+    update_online(user_id)
+    
+    if user_id not in matches:
+        return
+
+    current_state = await state.get_state()
+    if current_state == MatchState.entering_score:
+        return
+
+    opponent = matches[user_id]
+    op_data = get_user(opponent)
+    op_lang = op_data["language"] if op_data else "🇷🇺 Русский"
+
+    try:
+        if message.text:
+            await bot.send_message(opponent, f"{LOCALIZATION[op_lang]['relay_prefix']}\n{message.text}")
+        else:
+            await message.send_copy(chat_id=opponent)
+    except Exception as e:
+        print(f"Ошибка пересылки: {e}")
+
+# ---------------- MAIN ----------------
 async def main():
     try:
         await bot.delete_webhook(drop_pending_updates=True)
