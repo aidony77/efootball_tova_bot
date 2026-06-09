@@ -44,9 +44,16 @@ def init_db():
             wins INTEGER DEFAULT 0,
             draws INTEGER DEFAULT 0,
             losses INTEGER DEFAULT 0,
-            is_banned INTEGER DEFAULT 0
+            is_banned INTEGER DEFAULT 0,
+            warns INTEGER DEFAULT 0
         )
     """)
+    # Ескі деректер базасы бар болса, warns бағаны жоқ болса қосу (Альтер тарихи қателерді болдырмау үшін)
+    try:
+        cursor.execute("ALTER TABLE users ADD COLUMN warns INTEGER DEFAULT 0")
+    except sqlite3.OperationalError:
+        pass  # Егер баған бұрыннан бар болса, қатені өткізіп жібереді
+        
     conn.commit()
     conn.close()
 
@@ -55,7 +62,7 @@ init_db()
 def get_user(user_id):
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
-    cursor.execute("SELECT language, matches_played, wins, draws, losses, is_banned FROM users WHERE user_id = ?", (user_id,))
+    cursor.execute("SELECT language, matches_played, wins, draws, losses, is_banned, warns FROM users WHERE user_id = ?", (user_id,))
     row = cursor.fetchone()
     conn.close()
     if row:
@@ -65,7 +72,8 @@ def get_user(user_id):
             "wins": row[2], 
             "draws": row[3], 
             "losses": row[4],
-            "is_banned": row[5]
+            "is_banned": row[5],
+            "warns": row[6]
         }
     return None
 
@@ -143,7 +151,7 @@ LOCALIZATION = {
         "no_active_match": "❌ You have no active match",
         "search_cancelled": "🛑 Search cancelled",
         "relay_prefix": "💬 Opponent:",
-        "profile_text": "👤 <b>Your Profile:</b>\n\nName: {name}\n🎮 Matches: <b>{matches}</b>\n✅ Wins: {wins} | 🤝 Draws: {draws} | ❌ Losses: {losses}\n\n📊 <b>Bot Statistics:</b>\n🟢 Online: <b>{online}</b>\n👥 Total Players: <b>{total}</b>",
+        "profile_text": "👤 <b>Your Profile:</b>\n\nName: {name}\n🎮 Matches: <b>{matches}</b>\n✅ Wins: {wins} | 🤝 Draws: {draws} | ❌ Losses: {losses}\n⚠️ Warns: <b>{warns}/3</b>\n\n📊 <b>Bot Statistics:</b>\n🟢 Online: <b>{online}</b>\n👥 Total Players: <b>{total}</b>",
         "top_title": "🏆 <b>TOP PLAYERS (BY WINS):</b>\n\n",
         "ask_score": "⚽ Match ended! Please enter the score from your side.\nFormat: <code>3-2</code> or <code>3:2</code> (YOUR goals first):",
         "bad_format": "❌ Invalid format! Enter the score like: 2-1 or 2:1",
@@ -177,12 +185,12 @@ LOCALIZATION = {
         "already_in_match": "❌ Сіз қазір ойындасыз",
         "already_in_queue": "⏳ Сіз қарсылас іздеп жатырсыз",
         "searching": "🔎 Қарсылас іздеудеміз...",
-        "found_host": "🟢 Матч табылды! Сіз ХОСТсыз 🎮\n\nБөлме кодын ашып, қарсыласқа осы чатта жазыңыз!",
-        "found_player": "🟡 Матч табылды! Сіз ИГРОКсыз 🎮\n\nҚарсыластың бөлме кодын жіберуін күтіңіз!",
+        "found_host": "🟢 Match табылды! Сіз ХОСТсыз 🎮\n\nБөлме кодын ашып, қарсыласқа осы чатта жазыңыз!",
+        "found_player": "🟡 Match табылды! Сіз ИГРОКсыз 🎮\n\nҚарсыластың бөлме кодын жіберуін күтіңіз!",
         "no_active_match": "❌ Сізде белсенді матч жоқ",
         "search_cancelled": "🛑 Іздеу тоқтатылды",
         "relay_prefix": "💬 Қарсылас:",
-        "profile_text": "👤 <b>Сіздің профиліңіз:</b>\n\nАтыңыз: {name}\n🎮 Матчтар: <b>{matches}</b>\n✅ Жеңіс: {wins} | 🤝 Тең: {draws} | ❌ Жеңіліс: {losses}\n\n📊 <b>Бот статистикасы:</b>\n🟢 Ботта онлайн: <b>{online}</b>\n👥 Барлық ойыншылар: <b>{total}</b>",
+        "profile_text": "👤 <b>Сіздің профиліңіз:</b>\n\nАтыңыз: {name}\n🎮 Матчтар: <b>{matches}</b>\n✅ Жеңіс: {wins} | 🤝 Тең: {draws} | ❌ Жеңіліс: {losses}\n⚠️ Ескертулер (Warns): <b>{warns}/3</b>\n\n📊 <b>Бот статистикасы:</b>\n🟢 Ботта онлайн: <b>{online}</b>\n👥 Барлық ойыншылар: <b>{total}</b>",
         "top_title": "🏆 <b>ТОП ОЙЫНШЫЛАР (ЖЕҢІС САНЫ БОЙЫНША):</b>\n\n",
         "ask_score": "⚽ Матч аяқталды! Өтініш, өз тарапыңыздан болған матч есебін енгізіңіз.\nФормат: <code>3-2</code> немесе <code>3:2</code> (Бірінші ӨЗ голыңыз):",
         "bad_format": "❌ Қате формат! Есепті тек мына үлгіде жазыңыз: 2-1 немесе 2:1",
@@ -210,7 +218,7 @@ LOCALIZATION = {
         "find_match": "🔍 Поиск матча",
         "end_match": "❌ Завершить матч",
         "profile": "👤 Мой профиль",
-        "top_players": "🏆 Топ игроки",
+        "top_players": "🏆 Top игроки",
         "rules": "📜 Правила",
         "welcome": "⚽ <b>eFootball Match Bot</b>\n\n🔥 Добро пожаловать!\n📢 Наш канал: @tova_efootball_bot_news",
         "already_in_match": "❌ Ты уже в матче",
@@ -221,7 +229,7 @@ LOCALIZATION = {
         "no_active_match": "❌ У тебя нет активного матча",
         "search_cancelled": "🛑 Поиск отменен",
         "relay_prefix": "💬 Соперник:",
-        "profile_text": "👤 <b>Твой профиль:</b>\n\nИмя: {name}\n🎮 Матчей: <b>{matches}</b>\n✅ Побед: {wins} | 🤝 Ничьих: {draws} | ❌ Поражений: {losses}\n\n📊 <b>Статистика бота:</b>\n🟢 В сети: <b>{online}</b>\n👥 Всего игроков: <b>{total}</b>",
+        "profile_text": "👤 <b>Твой профиль:</b>\n\nИмя: {name}\n🎮 Матчей: <b>{matches}</b>\n✅ Побед: {wins} | 🤝 Ничьих: {draws} | ❌ Поражений: {losses}\n⚠️ Предупреждения (Warns): <b>{warns}/3</b>\n\n📊 <b>Статистика бота:</b>\n🟢 В сети: <b>{online}</b>\n👥 Всего игроков: <b>{total}</b>",
         "top_title": "🏆 <b>ТОП ИГРОКОВ (ПО ПОБЕДАМ):</b>\n\n",
         "ask_score": "⚽ Match завершен! Пожалуйста, введите счет со своей стороны.\nFormat: <code>3-2</code> или <code>3:2</code> (Первым СВОИ голы):",
         "bad_format": "❌ Неверный формат! Введите счет в виде: 2-1 или 2:1",
@@ -234,7 +242,7 @@ LOCALIZATION = {
             "1️⃣ <b>Честная игра (Fair Play):</b>\n"
             "После матча вводите ЧЕСТНЫЙ счет. Первым всегда указываются СВОИ голы.\n\n"
             "2️⃣ <b>Формат ввода счета:</b>\n"
-            "Можно писать через дефис или двоеточие: <code>2-1</code> или <code>2:1</code>. Без лишних слов и символов. Если вы проиграли, счет можно ввести наоборот (например, 1-3).\n\n"
+            "Можно писать через дефис или dвоеточие: <code>2-1</code> или <code>2:1</code>. Без лишних слов и символов. Если вы проиграли, счет можно ввести наоборот (например, 1-3).\n\n"
             "3️⃣ <b>Защита от обмана:</b>\n"
             "Если счета игроков не сойдутся зеркально, бот потребует ввести счет заново. В случае намеренного обмана пишите админу.\n\n"
             "4️⃣ <b>Запрет на накрутку:</b>\n"
@@ -277,8 +285,73 @@ async def admin_ban(message: Message):
         conn.commit()
         conn.close()
         await message.answer(f"🚫 Пайдаланушы ID {target_id} сәтті бұғатталды (БАН).")
+        try:
+            await bot.send_message(target_id, "❌ <b>Сіз бот ережесін өрескел бұзғаныңыз үшін админ тарапынан мәңгілікке БАН алдыңыз!</b>")
+        except Exception:
+            pass
     except Exception as e:
         await message.answer("❌ Қате формат! Мысалы: `/ban 123456789`")
+
+@dp.message(Command("warn"))
+async def admin_warn(message: Message):
+    if message.from_user.id != ADMIN_ID:
+        return
+    try:
+        parts = message.text.split(maxsplit=2)
+        target_id = int(parts[1])
+        reason = parts[2] if len(parts) > 2 else "Себебі көрсетілмеген"
+        
+        conn = sqlite3.connect(DB_FILE)
+        cursor = conn.cursor()
+        cursor.execute("UPDATE users SET warns = warns + 1 WHERE user_id = ?", (target_id,))
+        cursor.execute("SELECT warns FROM users WHERE user_id = ?", (target_id,))
+        current_warns = cursor.fetchone()[0]
+        
+        if current_warns >= 3:
+            cursor.execute("UPDATE users SET is_banned = 1 WHERE user_id = ?", (target_id,))
+            conn.commit()
+            conn.close()
+            await message.answer(f"⚠️ Пайдаланушы ID {target_id}-ге ескерту берілді. Жалпы варн: {current_warns}/3.\n🛑 <b>3 ескерту толғандықтан автоматты түрде БАН-ға кетті!</b>")
+            try:
+                await bot.send_message(target_id, f"⚠️ <b>Сізге әкімші тарапынан ескерту (ВАРН) берілді!</b>\n📝 Себебі: {reason}\n\n🛑 <b>Ескерту саны 3/3-ке жетті! Сіз автоматты түрде БАН-ға кеттіңіз!</b>")
+            except Exception:
+                pass
+        else:
+            conn.commit()
+            conn.close()
+            await message.answer(f"⚠️ Пайдаланушы ID {target_id}-ге ескерту берілді. Қазіргі варн саны: {current_warns}/3.")
+            try:
+                await bot.send_message(target_id, f"⚠️ <b>Сізге әкімші тарапынан ескерту (ВАРН) берілді!</b>\n📝 Себебі: {reason}\n📉 Қазіргі ескерту саны: <b>{current_warns}/3</b>.\n\n<i>Егер 3 ескерту жиналса, автоматты түрде БАН аласыз!</i>")
+            except Exception:
+                pass
+    except Exception as e:
+        await message.answer("❌ Қате формат! Мысалы: `/warn [ID] [Себебі]`")
+
+@dp.message(Command("unwarn"))
+async def admin_unwarn(message: Message):
+    if message.from_user.id != ADMIN_ID:
+        return
+    try:
+        target_id = int(message.text.split()[1])
+        conn = sqlite3.connect(DB_FILE)
+        cursor = conn.cursor()
+        cursor.execute("SELECT warns FROM users WHERE user_id = ?", (target_id,))
+        row = cursor.fetchone()
+        
+        if row:
+            current_warns = max(0, row[0] - 1)
+            cursor.execute("UPDATE users SET warns = ? WHERE user_id = ?", (current_warns, target_id))
+            conn.commit()
+            await message.answer(f"✅ Пайдаланушы ID {target_id}-ден 1 ескерту алынды. Қазіргі варн: {current_warns}/3.")
+            try:
+                await bot.send_message(target_id, f"✅ <b>Әкімші сіздің 1 ескертуіңізді (ВАРН) алып тастады!</b>\n📉 Қазіргі ескерту саны: <b>{current_warns}/3</b>.")
+            except Exception:
+                pass
+        else:
+            await message.answer("❌ Пайдаланушы базадан табылмады.")
+        conn.close()
+    except Exception as e:
+        await message.answer("❌ Қате формат! Мысалы: `/unwarn 123456789`")
 
 @dp.message(Command("setscore"))
 async def admin_set_score(message: Message):
@@ -368,6 +441,7 @@ async def show_profile(message: Message):
         wins=user_data["wins"] if user_data else 0,
         draws=user_data["draws"] if user_data else 0,
         losses=user_data["losses"] if user_data else 0,
+        warns=user_data["warns"] if user_data else 0,
         online=online_count,
         total=total_count
     )
