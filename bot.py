@@ -48,11 +48,10 @@ def init_db():
             warns INTEGER DEFAULT 0
         )
     """)
-    # Ескі деректер базасы бар болса, warns бағаны жоқ болса қосу (Альтер тарихи қателерді болдырмау үшін)
     try:
         cursor.execute("ALTER TABLE users ADD COLUMN warns INTEGER DEFAULT 0")
     except sqlite3.OperationalError:
-        pass  # Егер баған бұрыннан бар болса, қатені өткізіп жібереді
+        pass
         
     conn.commit()
     conn.close()
@@ -218,7 +217,7 @@ LOCALIZATION = {
         "find_match": "🔍 Поиск матча",
         "end_match": "❌ Завершить матч",
         "profile": "👤 Мой профиль",
-        "top_players": "🏆 Top игроки",
+        "top_players": "🏆 Топ игроки",
         "rules": "📜 Правила",
         "welcome": "⚽ <b>eFootball Match Bot</b>\n\n🔥 Добро пожаловать!\n📢 Наш канал: @tova_efootball_bot_news",
         "already_in_match": "❌ Ты уже в матче",
@@ -242,7 +241,7 @@ LOCALIZATION = {
             "1️⃣ <b>Честная игра (Fair Play):</b>\n"
             "После матча вводите ЧЕСТНЫЙ счет. Первым всегда указываются СВОИ голы.\n\n"
             "2️⃣ <b>Формат ввода счета:</b>\n"
-            "Можно писать через дефис или dвоеточие: <code>2-1</code> или <code>2:1</code>. Без лишних слов и символов. Если вы проиграли, счет можно ввести наоборот (например, 1-3).\n\n"
+            "Можно писать через дефис или двоеточие: <code>2-1</code> или <code>2:1</code>. Без лишних слов и символов. Если вы проиграли, счет можно ввести наоборот (например, 1-3).\n\n"
             "3️⃣ <b>Защита от обмана:</b>\n"
             "Если счета игроков не сойдутся зеркально, бот потребует ввести счет заново. В случае намеренного обмана пишите админу.\n\n"
             "4️⃣ <b>Запрет на накрутку:</b>\n"
@@ -291,6 +290,25 @@ async def admin_ban(message: Message):
             pass
     except Exception as e:
         await message.answer("❌ Қате формат! Мысалы: `/ban 123456789`")
+
+@dp.message(Command("unban"))
+async def admin_unban(message: Message):
+    if message.from_user.id != ADMIN_ID:
+        return
+    try:
+        target_id = int(message.text.split()[1])
+        conn = sqlite3.connect(DB_FILE)
+        # Бәнін ашамыз және ескертулерін 0-ге түсіреміз
+        conn.execute("UPDATE users SET is_banned = 0, warns = 0 WHERE user_id = ?", (target_id,))
+        conn.commit()
+        conn.close()
+        await message.answer(f"✅ Пайдаланушы ID {target_id} бұғаттаудан сәтті шығарылды (БАН алынды). Ескертулері нөлденді.")
+        try:
+            await bot.send_message(target_id, "🔓 <b>Админ сіздің бұғаттауыңызды ашты (БАН алынды)! Қайтадан ойнай аласыз. Ереже бұзбаңыз!</b>")
+        except Exception:
+            pass
+    except Exception as e:
+        await message.answer("❌ Қате формат! Мысалы: `/unban 123456789`")
 
 @dp.message(Command("warn"))
 async def admin_warn(message: Message):
@@ -352,6 +370,48 @@ async def admin_unwarn(message: Message):
         conn.close()
     except Exception as e:
         await message.answer("❌ Қате формат! Мысалы: `/unwarn 123456789`")
+
+@dp.message(Command("banlist"))
+async def admin_banlist(message: Message):
+    if message.from_user.id != ADMIN_ID:
+        return
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+    cursor.execute("SELECT user_id, username FROM users WHERE is_banned = 1")
+    rows = cursor.fetchall()
+    conn.close()
+    
+    if not rows:
+        await message.answer("📋 <b>Бұғатталған ойыншылар тізімі бос.</b>")
+        return
+        
+    text = "🚫 <b>БҰҒАТТАЛҒАН ОЙЫНШЫЛАР ТІЗІМІ (BANLIST):</b>\n\n"
+    for idx, row in enumerate(rows, start=1):
+        uid, uname = row
+        display = f"@{uname}" if uname and not uname.isdigit() else "Жасырын"
+        text += f"{idx}. ID: <code>{uid}</code> — {display}\n"
+    await message.answer(text)
+
+@dp.message(Command("warnlist"))
+async def admin_warnlist(message: Message):
+    if message.from_user.id != ADMIN_ID:
+        return
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+    cursor.execute("SELECT user_id, username, warns FROM users WHERE warns > 0 AND is_banned = 0")
+    rows = cursor.fetchall()
+    conn.close()
+    
+    if not rows:
+        await message.answer("📋 <b>Ескертуі бар ойыншылар тізімі бос.</b>")
+        return
+        
+    text = "⚠️ <b>ЕСКЕРТУІ БАР ОЙЫНШЫЛАР (WARNLIST):</b>\n\n"
+    for idx, row in enumerate(rows, start=1):
+        uid, uname, warns = row
+        display = f"@{uname}" if uname and not uname.isdigit() else "Жасырын"
+        text += f"{idx}. ID: <code>{uid}</code> — {display} | ВАРН: <b>{warns}/3</b>\n"
+    await message.answer(text)
 
 @dp.message(Command("setscore"))
 async def admin_set_score(message: Message):
