@@ -318,7 +318,7 @@ async def report_user(message: Message):
     target = args[1]
     reason = args[2]
     
-   report_text = f"🚨 <b>ЖАҢА ШАҒЫМ (REPORT)!</b>\n\n💬 Кімнен: {reporter} (ID: {user_id})\n🎯 Кімге: {target}\n📝 Себебі: {reason}"
+report_text = f"🚨 <b>ЖАҢА ШАҒЫМ (REPORT)!</b>\n\n💬 Кімнен: {reporter} (ID: {user_id})\n🎯 Кімге: {target}\n📝 Себебі: {reason}"
     try:
         await bot.send_message(chat_id=ADMIN_ID, text=report_text)
         await message.answer("✅ Шағымыңыз қабылданды және әкімшіге (админге) жолданды. Тексеріс жүргізіледі!")
