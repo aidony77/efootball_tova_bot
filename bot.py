@@ -17,6 +17,7 @@ from aiogram.fsm.context import FSMContext
 # ---------------- CONFIG & ADMIN ----------------
 TOKEN = os.getenv("TOKEN")
 ADMIN_ID = 8093382664  # Сенің Telegram ID-ің
+ADMIN_USERNAME = "@sarmanchik01"  # Сенің Телеграм юзернеймің
 
 # ---------------- BOT ----------------
 bot = Bot(
@@ -31,7 +32,6 @@ class MatchState(StatesGroup):
     entering_score = State()
 
 # ---------------- DATABASE (SQLite) ----------------
-# Егер Render-де Persistent Disk қоссаң, база автоматты түрде /data ішіне өшпейтін болып сақталады
 if os.path.exists("/data"):
     DB_FILE = "/data/bot_database.db"
 else:
@@ -176,15 +176,16 @@ LOCALIZATION = {
             "1️⃣ <b>Fair Play:</b>\n"
             "After the match ends, both players must enter the HONEST score. Always put YOUR goals first.\n\n"
             "2️⃣ <b>Score Format:</b>\n"
-            "You can enter the score using a hyphen or a colon: <code>2-1</code> or <code>2:1</code>. Do not write any extra words. If you lost, you can enter the score accordingly (e.g., 1-3).\n\n"
+            "You can enter the score using a hyphen or a colon: <code>2-1</code> or <code>2:1</code>.\n\n"
             "3️⃣ <b>Anti-Cheat System:</b>\n"
-            "If the entered scores do not match each other inversely, the bot will reject the entry. If your opponent is lying, take a screenshot and contact the admin.\n\n"
-            "4️⃣ <b>No Match Fixing / Boosting:</b>\n"
-            "It is strictly forbidden to immediately end a match with a <code>0-0</code> score just to boost your match count. Such matches will not grant any stats.\n\n"
-            "5️⃣ <b>Respect:</b>\n"
-            "Any insults or toxic behavior towards your opponent via the bot chat will result in a permanent BAN.\n\n"
-            "📢 Tournament Channel: kpl_efootball_tournament\n"
-            "📢 Bot News: @tova_efootball_bot_news"
+            "If the entered scores do not match, the bot will reject them. Take a screenshot if needed.\n\n"
+            "4️⃣ <b>No Match Fixing:</b>\n"
+            "Ending a match with <code>0-0</code> immediately to boost stats is forbidden.\n\n"
+            "💡 <b>Questions, Ideas & Feedback:</b>\n"
+            "If you have any questions, bugs, or interesting ideas to improve the bot, feel free to share them! You can contact the admin directly: {ADMIN_USERNAME}.\n\n"
+            "Alternatively, use the built-in feedback command directly in this chat:\n"
+            "👉 <code>/feedback [your text]</code>\n"
+            "<i>Example: /feedback I have a great tournament idea...</i>"
         )
     },
     "🇰🇿 Қазақша": {
@@ -215,15 +216,16 @@ LOCALIZATION = {
             "1️⃣ <b>Әділ ойын (Fair Play):</b>\n"
             "Матч біткен соң екі ойыншы да есепті ТУРА енгізуі тиіс. Бірінші ӨЗІҢІЗДІҢ салған голыңыз жазылады.\n\n"
             "2️⃣ <b>Есепті енгізу форматы:</b>\n"
-            "Есепті <code>2-1</code> немесе <code>2:1</code> форматында жазуға болады. Басқа артық сөз жазуға болмайды. Егер сіз ұтылсаңыз, есепті керісінше жазуға болады (мысалы, 1-3).\n\n"
+            "Есепті <code>2-1</code> немесе <code>2:1</code> форматында жазуға болады.\n\n"
             "3️⃣ <b>Алдамшылықтан қорғау:</b>\n"
-            "Егер екі ойыншының есебі бір-біріне айналы (зеркально) сәйкес келмесе, бот ұпай қоспайды. Қарсылас өтірік жазса, скриншотпен админге хабарласыңыз.\n\n"
+            "Егер екі ойыншының есебі сәйкес келмесе, бот ұпай қоспайды.\n\n"
             "4️⃣ <b>Накруткаға тыйым салу:</b>\n"
-            "Ойынды бастап, бірден <code>0-0</code> қылып аяқтай салуға болмайды. Ондай матчтар есептелмейді.\n\n"
-            "5️⃣ <b>Сыйластық:</b>\n"
-            "Чатта қарсыласты балағаттаған немесе балағат сөз жазған ойыншы боттан мәңгілікке БАН алады.\n\n"
-            "📢 Турнир арнасы: kpl_efootball_tournament\n"
-            "📢 Бот жаңалықтары: @tova_efootball_bot_news"
+            "Ойынды бастап, бірден <code>0-0</code> қылып аяқтай салуға болмайды.\n\n"
+            "💡 <b>Сұрақтар, Идеялар мен Шағымдар:</b>\n"
+            "Егер сізде ботқа қатысты сұрақтар немесе қызықты идеялар туындаса, админге тікелей жаза аласыз: {ADMIN_USERNAME}.\n\n"
+            "Немесе боттың өзінде мына арнайы команда арқылы хабарлама жіберіңіз:\n"
+            "👉 <code>/feedback [сіздің мәтініңіз]</code>\n"
+            "<i>Үлгі: /feedback Менде турнир бойынша жаңа идея бар еді...</i>"
         )
     },
     "🇷🇺 Русский": {
@@ -237,8 +239,8 @@ LOCALIZATION = {
         "already_in_queue": "⏳ Ты уже ищешь соперника",
         "searching": "🔎 Ищем соперника...",
         "found_host": "🟢 Match найден! Ты ХОСТ 🎮\n\nСоздай комнату и отправь код сопернику прямо сюда!",
-        "found_player": "🟡 Match найден! Ты ИГРОК 🎮\n\nЖди код комнаты от соперника в этом чате!",
-        "no_active_match": "❌ У тебя нет активного матча",
+        "found_player": "🟡 Match найден! Ты ИГКОК 🎮\n\nЖди код комнаты от соперника в этом чате!",
+        "no_active_match": "❌ У тебя нет active матча",
         "search_cancelled": "🛑 Поиск отменен",
         "relay_prefix": "💬 Соперник:",
         "profile_text": "👤 <b>Твой профиль:</b>\n\nИмя: {name}\n🎮 Матчей: <b>{matches}</b>\n✅ Побед: {wins} | 🤝 Ничьих: {draws} | ❌ Поражений: {losses}\n⚠️ Предупреждения (Warns): <b>{warns}/3</b>\n\n📊 <b>Статистика бота:</b>\n🟢 В сети: <b>{online}</b>\n👥 Всего игроков: <b>{total}</b>",
@@ -252,17 +254,18 @@ LOCALIZATION = {
         "rules_text": (
             "📜 <b>ОФИЦИАЛЬНЫЕ ПРАВИЛА БОТА</b>\n\n"
             "1️⃣ <b>Честная игра (Fair Play):</b>\n"
-            "После матча вводите ЧЕСТНЫЙ счет. Первым всегда указываются СВОИ голы.\n\n"
+            "После матча вводите СВОИ голы первыми.\n\n"
             "2️⃣ <b>Формат ввода счета:</b>\n"
-            "Можно писать через дефис или двоеточие: <code>2-1</code> или <code>2:1</code>. Без лишних слов и символов. Если вы проиграли, счет можно ввести наоборот (например, 1-3).\n\n"
+            "Можно писать через дефис или двоеточие: <code>2-1</code> или <code>2:1</code>.\n\n"
             "3️⃣ <b>Защита от обмана:</b>\n"
-            "Если счета игроков не сойдутся зеркально, бот потребует ввести счет заново. В случае намеренного обмана пишите админу.\n\n"
+            "Если счета игроков не сойдутся зеркально, бот потребует ввести счет заново.\n\n"
             "4️⃣ <b>Запрет на накрутку:</b>\n"
-            "Запрещено сразу завершать матч со счетом <code>0-0</code> ради накрутки матчей. Такие игры не засчитываются.\n\n"
-            "5️⃣ <b>Уважение:</b>\n"
-            "За оскорбление соперника через чат бота — мгновенный и вечный БАН.\n\n"
-            "📢 Канал турнира: kpl_efootball_tournament\n"
-            "📢 Новости бота: @tova_efootball_bot_news"
+            "Запрещено завершать матч со счетом <code>0-0</code> ради накрутки.\n\n"
+            "💡 <b>Вопросы, Идеи и Обратная связь:</b>\n"
+            "Если у вас есть вопросы, жалобы или предложения, вы можете написать админу напрямую: {ADMIN_USERNAME}.\n\n"
+            "Также вы можете отправить сообщение админу через встроенную команду прямо здесь:\n"
+            "👉 <code>/feedback [ваше сообщение]</code>\n"
+            "<i>Пример: /feedback У меня есть идея для улучшения системы топа...</i>"
         )
     }
 }
@@ -284,6 +287,43 @@ def get_main_keyboard(lang: str) -> ReplyKeyboardMarkup:
         ],
         resize_keyboard=True
     )
+
+# ---------------- USER FEEDBACK / SUGGESTIONS ----------------
+@dp.message(Command("feedback"))
+async def user_feedback(message: Message):
+    user_id = message.from_user.id
+    update_online(user_id)
+    
+    # Командадан кейінгі мәтінді дұрыс бөліп алу (артық бос орындарды trim/strip етеміз)
+    args = message.text.split(maxsplit=1)
+    feedback_text = args[1].strip() if len(args) > 1 else ""
+    
+    user_data = get_user(user_id)
+    lang = user_data["language"] if user_data else "🇷🇺 Русский"
+    
+    if not feedback_text:
+        if lang == "🇰🇿 Қазақша":
+            await message.answer("❌ Мәтін бос! Үлгі:\n<code>/feedback Менде жаңа идея бар...</code>")
+        elif lang == "🇬🇧 English":
+            await message.answer("❌ Text is empty! Example:\n<code>/feedback I have an idea...</code>")
+        else:
+            await message.answer("❌ Текст пуст! Пример:\n<code>/feedback У меня есть идея...</code>")
+        return
+        
+    user_display = f"@{message.from_user.username}" if message.from_user.username else f"User_{user_id}"
+    admin_notif = f"💡 <b>ЖАҢА ИДЕЯ / СҰРАҚ (FEEDBACK)!</b>\n\n👤 Кімнен: {user_display} (ID: <code>{user_id}</code>)\n📝 Мәтіні: {feedback_text}"
+    
+    try:
+        await bot.send_message(chat_id=ADMIN_ID, text=admin_notif)
+        if lang == "🇰🇿 Қазақша":
+            await message.answer("✅ Шағымыңыз/идеяңыз сәтті жіберілді! Админ міндетті түрде оқиды. Рахмет!")
+        elif lang == "🇬🇧 English":
+            await message.answer("✅ Your feedback has been sent successfully! The admin will read it. Thank you!")
+        else:
+            await message.answer("✅ Ваше сообщение/идея успешно отправлены! Админ обязательно прочитает. Спасибо!")
+    except Exception as e:
+        print(f"Feedback қатесі: {e}")
+        await message.answer("❌ Қате кетті. Бот админіне тікелей жазыңыз.")
 
 # ---------------- ADMIN EXPORT / IMPORT ----------------
 @dp.message(Command("export_db"))
@@ -309,7 +349,7 @@ async def admin_export_db(message: Message):
         })
         
     json_text = json.dumps(data_list, ensure_ascii=False)
-    await message.answer("📋 <b>БАЗА ДЕРЕКТЕРІНІҢ КӨШІРМЕСІ (EXPORT):</b>\n\nТөмендегі кодты толық көшіріп ал. Жаңа бот ашқанда осыны қолданасың.")
+    await message.answer("📋 <b>БАЗА ДЕРЕКТЕРІНІҢ КӨШІРМЕСІ (EXPORT):</b>")
     await message.answer(f"<code>{json_text}</code>")
 
 @dp.message(Command("import_db"))
@@ -341,11 +381,48 @@ async def admin_import_db(message: Message):
             
         conn.commit()
         conn.close()
-        await message.answer(f"✅ <b>Импорт сәтті аяқталды!</b>\n📊 Жаңа базаға {imported_count} ойыншының статистикасы толық көшірілді.")
+        await message.answer(f"✅ <b>Импорт сәтті аяқталды!</b>\n📊 Базаға {imported_count} ойыншының статистикасы көшірілді.")
     except Exception as e:
         await message.answer(f"❌ Импорт кезінде қате кетті. Қате: {e}")
 
 # ---------------- ADMIN CONTROL COMMANDS ----------------
+@dp.message(Command("cancelmatch"))
+async def admin_cancel_match(message: Message):
+    if message.from_user.id != ADMIN_ID:
+        return
+    try:
+        args = message.text.split()
+        if len(args) < 2:
+            await message.answer("❌ Қате формат!\nҮлгі: `/cancelmatch [Ойыншы_ID]`")
+            return
+            
+        target_id = int(args[1])
+        if target_id not in matches:
+            await message.answer("❌ Бұл ойыншы қазір белсенді матчта емес.")
+            return
+            
+        opponent_id = matches[target_id]
+        
+        ctx1 = dp.fsm.get_context(bot, chat_id=target_id, user_id=target_id)
+        ctx2 = dp.fsm.get_context(bot, chat_id=opponent_id, user_id=opponent_id)
+        await ctx1.clear()
+        await ctx2.clear()
+        
+        score_votes.pop(target_id, None)
+        score_votes.pop(opponent_id, None)
+        matches.pop(target_id, None)
+        matches.pop(opponent_id, None)
+        
+        await message.answer(f"✅ ID {target_id} және ID {opponent_id} арасындағы матч сәтті тоқтатылды.")
+        
+        try:
+            await bot.send_message(target_id, "🛑 <b>Әкімші (Админ) сіздің ағымдағы матчыңызды тоқтатты (Отмена жасады).</b>")
+            await bot.send_message(opponent_id, "🛑 <b>Әкімші (Админ) сіздің ағымдағы матчыңызды тоқтатты (Отмена жасады).</b>")
+        except Exception:
+            pass
+    except Exception as e:
+        await message.answer(f"❌ Қате орындалды: {e}")
+
 @dp.message(Command("ban"))
 async def admin_ban(message: Message):
     if message.from_user.id != ADMIN_ID:
@@ -356,9 +433,9 @@ async def admin_ban(message: Message):
         conn.execute("UPDATE users SET is_banned = 1 WHERE user_id = ?", (target_id,))
         conn.commit()
         conn.close()
-        await message.answer(f"🚫 Пайдаланушы ID {target_id} сәтті бұғатталды (БАН).")
+        await message.answer(f"🚫 Пайдаланушы ID {target_id} сәтті бұғатталды.")
         try:
-            await bot.send_message(target_id, "❌ <b>Сіз бот ережесін өрескел бұзғаныңыз үшін админ тарапынан мәңгілікке БАН алдыңыз!</b>")
+            await bot.send_message(target_id, "❌ <b>Сіз бот ережесін бұзғаныңыз үшін админ тарапынан мәңгілікке БАН алдыңыз!</b>")
         except Exception:
             pass
     except Exception as e:
@@ -374,7 +451,7 @@ async def admin_unban(message: Message):
         conn.execute("UPDATE users SET is_banned = 0, warns = 0 WHERE user_id = ?", (target_id,))
         conn.commit()
         conn.close()
-        await message.answer(f"✅ Пайдаланушы ID {target_id} бұғаттаудан сәтті шығарылды. Ескертулері нөлденді.")
+        await message.answer(f"✅ Пайдаланушы ID {target_id} бұғаттаудан шығарылды.")
         try:
             await bot.send_message(target_id, "🔓 <b>Админ сіздің бұғаттауыңызды ашты! Қайтадан ойнай аласыз.</b>")
         except Exception:
@@ -401,17 +478,17 @@ async def admin_warn(message: Message):
             cursor.execute("UPDATE users SET is_banned = 1 WHERE user_id = ?", (target_id,))
             conn.commit()
             conn.close()
-            await message.answer(f"⚠️ Пайдаланушы ID {target_id}-ге ескерту берілді. Жалпы варн: {current_warns}/3.\n🛑 <b>Автоматты түрде БАН-ға кетті!</b>")
+            await message.answer(f"⚠️ ID {target_id} варн алды. Варн: {current_warns}/3.\n🛑 <b>Автоматты БАН!</b>")
             try:
-                await bot.send_message(target_id, f"⚠️ <b>Сізге ескерту (ВАРН) берілді!</b>\n📝 Себебі: {reason}\n\n🛑 <b>Ескерту саны 3/3-ке жетті! Сіз автоматты түрде БАН-ға кеттіңіз!</b>")
+                await bot.send_message(target_id, f"⚠️ <b>ВАРН берілді!</b>\n📝 Себебі: {reason}\n\n🛑 <b>Ескерту саны 3/3-ке жетті! БАН!</b>")
             except Exception:
                 pass
         else:
             conn.commit()
             conn.close()
-            await message.answer(f"⚠️ Пайдаланушы ID {target_id}-ге ескерту берілді. Қазіргі варн саны: {current_warns}/3.")
+            await message.answer(f"⚠️ ID {target_id}-ге ескерту берілді. Варн саны: {current_warns}/3.")
             try:
-                await bot.send_message(target_id, f"⚠️ <b>Сізге ескерту (ВАРН) берілді!</b>\n📝 Себебі: {reason}\n📉 Қазіргі ескерту саны: <b>{current_warns}/3</b>.")
+                await bot.send_message(target_id, f"⚠️ <b>ВАРН берілді!</b>\n📝 Себебі: {reason}\n📉 Саны: <b>{current_warns}/3</b>.")
             except Exception:
                 pass
     except Exception as e:
@@ -430,18 +507,14 @@ async def admin_unwarn(message: Message):
         
         if row:
             current_warns = max(0, row[0] - 1)
-            cursor.execute("UPDATE users SET warns = ? WHERE user_id = ?", (current_warns, target_id))
+            cursor.execute("UPDATE warns FROM users WHERE user_id = ?", (current_warns, target_id))
             conn.commit()
-            await message.answer(f"✅ Пайдаланушы ID {target_id}-ден 1 ескерту алынды. Қазіргі варн: {current_warns}/3.")
-            try:
-                await bot.send_message(target_id, f"✅ <b>Әкімші сіздің 1 ескертуіңізді алып тастады!</b>\n📉 Қазіргі ескерту саны: <b>{current_warns}/3</b>.")
-            except Exception:
-                pass
+            await message.answer(f"✅ ID {target_id}-ден 1 варн алынды. Варн: {current_warns}/3.")
         else:
-            await message.answer("❌ Пайдаланушы базадан табылмады.")
+            await message.answer("❌ Табылмады.")
         conn.close()
     except Exception as e:
-        await message.answer("❌ Қате формат! Мысалы: `/unwarn 123456789`")
+        await message.answer("❌ Қате формат!")
 
 @dp.message(Command("banlist"))
 async def admin_banlist(message: Message):
@@ -452,12 +525,10 @@ async def admin_banlist(message: Message):
     cursor.execute("SELECT user_id, username FROM users WHERE is_banned = 1")
     rows = cursor.fetchall()
     conn.close()
-    
     if not rows:
-        await message.answer("📋 <b>Бұғатталған ойыншылар тізімі бос.</b>")
+        await message.answer("📋 <b>Банлист бос.</b>")
         return
-        
-    text = "🚫 <b>БҰҒАТТАЛҒАН ОЙЫНШЫЛАР ТІЗІМІ (BANLIST):</b>\n\n"
+    text = "🚫 <b>BANLIST:</b>\n\n"
     for idx, row in enumerate(rows, start=1):
         uid, uname = row
         display = f"@{uname}" if uname and not uname.isdigit() else "Жасырын"
@@ -473,12 +544,10 @@ async def admin_warnlist(message: Message):
     cursor.execute("SELECT user_id, username, warns FROM users WHERE warns > 0 AND is_banned = 0")
     rows = cursor.fetchall()
     conn.close()
-    
     if not rows:
         await message.answer("📋 <b>Ескертуі бар ойыншылар тізімі бос.</b>")
         return
-        
-    text = "⚠️ <b>ЕСКЕРТУІ БАР ОЙЫНШЫЛАР (WARNLIST):</b>\n\n"
+    text = "⚠️ <b>WARNLIST:</b>\n\n"
     for idx, row in enumerate(rows, start=1):
         uid, uname, warns = row
         display = f"@{uname}" if uname and not uname.isdigit() else "Жасырын"
@@ -492,56 +561,35 @@ async def admin_set_score(message: Message):
     try:
         args = message.text.split()
         if len(args) < 4:
-            await message.answer("❌ Қате формат!\nҮлгі: `/setscore [ID_1] [ID_2] [Есеп]`\nМысалы: `/setscore 12345 67890 3-1`")
+            await message.answer("❌ Үлгі: `/setscore [ID_1] [ID_2] [Есеп]`")
             return
-            
-        id1 = int(args[1])
-        id2 = int(args[2])
+        id1, id2 = int(args[1]), int(args[2])
         score = args[3].replace(":", "-")
-        
         if not re.match(r"^\d+-\d+$", score):
-            await message.answer("❌ Қате есеп форматы! Тек `3-1` немесе `2-2` сияқты жазыңыз.")
+            await message.answer("❌ Қате есеп форматы!")
             return
-            
         g1, g2 = map(int, score.split("-"))
         if g1 > g2:
-            update_stats(id1, "win")
-            update_stats(id2, "loss")
+            update_stats(id1, "win"); update_stats(id2, "loss")
         elif g1 < g2:
-            update_stats(id1, "loss")
-            update_stats(id2, "win")
+            update_stats(id1, "loss"); update_stats(id2, "win")
         else:
-            update_stats(id1, "draw")
-            update_stats(id2, "draw")
-            
-        await message.answer(f"✅ Матч есебі админ арқылы сәтті жазылды!\n🎯 <b>ID {id1}</b> [{g1}] - [{g2}] <b>ID {id2}</b>\nСтатистикалары жаңартылды!")
-        
-        try:
-            await bot.send_message(id1, f"📝 <b>Әкімші сіздің соңғы матчыңыздың есебін қолмен енгізді!</b>\nЕсеп: {score}. Статистикаңыз жаңартылды.")
-            await bot.send_message(id2, f"📝 <b>Әкімші сіздің соңғы матчыңыздың есебін қолмен енгізді!</b>\nЕсеп: {g2}-{g1}. Статистикаңыз жаңартылды.")
-        except Exception:
-            pass
-            
+            update_stats(id1, "draw"); update_stats(id2, "draw")
+        await message.answer(f"✅ Тіркелді: ID {id1} [{g1}] - [{g2}] ID {id2}")
     except Exception as e:
-        await message.answer(f"❌ Қате орындалды: {e}")
+        await message.answer(f"❌ Қате: {e}")
 
 @dp.message(Command("broadcast"))
 async def admin_broadcast(message: Message):
     if message.from_user.id != ADMIN_ID:
         return
-        
     broadcast_text = message.text.replace("/broadcast", "").strip()
-    
     if not broadcast_text:
-        await message.answer("❌ Жазатын мәтін бос! Үлгі:\n`/broadcast Бүгін кешке турнир басталады!`")
+        await message.answer("❌ Мәтін бос!")
         return
-        
     user_ids = get_all_user_ids()
-    await message.answer(f"📢 <b>Рассылка басталды!</b>\n👥 Барлық пайдаланушылар саны: {len(user_ids)}\nКүте тұрыңыз...")
-    
-    success = 0
-    failed = 0
-    
+    await message.answer(f"📢 Рассылка басталды... (Барлығы: {len(user_ids)})")
+    success, failed = 0, 0
     for uid in user_ids:
         try:
             await bot.send_message(chat_id=uid, text=broadcast_text)
@@ -549,8 +597,7 @@ async def admin_broadcast(message: Message):
             await asyncio.sleep(0.05)
         except Exception:
             failed += 1
-            
-    await message.answer(f"✅ <b>Рассылка аяқталды!</b>\n🟢 Сәтті жеткізілді: {success}\n🔴 Жеткізілмеді: {failed}")
+    await message.answer(f"✅ Аяқталды!\n🟢 Сәтті: {success}\n🔴 Сәтсіз: {failed}")
 
 @dp.message(Command("report"))
 async def report_user(message: Message):
@@ -558,19 +605,16 @@ async def report_user(message: Message):
     update_online(user_id)
     args = message.text.split(maxsplit=2)
     if len(args) < 3:
-        await message.answer("❌ Қате формат!\nҮлгі: `/report @username Себебін жазыңыз`")
+        await message.answer("❌ Үлгі: `/report @username Себебі`")
         return
-        
     reporter = f"@{message.from_user.username}" if message.from_user.username else f"User_{user_id}"
-    target = args[1]
-    reason = args[2]
-    
-    report_text = f"🚨 <b>ЖАҢА ШАҒЫМ (REPORT)!</b>\n\n💬 Кімнен: {reporter} (ID: {user_id})\n🎯 Кімге: {target}\n📝 Себебі: {reason}"
+    target, reason = args[1], args[2]
+    report_text = f"🚨 <b>ЖАҢА ШАҒЫМ!</b>\n\n💬 Кімнен: {reporter}\n🎯 Кімге: {target}\n📝 Себебі: {reason}"
     try:
         await bot.send_message(chat_id=ADMIN_ID, text=report_text)
-        await message.answer("✅ Шағымыңыз қабылданды және әкімшіге (админге) жолданды. Тексеріс жүргізіледі!")
-    except Exception as e:
-        await message.answer("❌ Шағым жіберу кезінде қате кетті.")
+        await message.answer("✅ Шағымыңыз админге жолданды!")
+    except Exception:
+        await message.answer("❌ Қате кетті.")
 
 # ---------------- START & LANG ----------------
 @dp.message(Command("start"))
@@ -605,7 +649,6 @@ async def show_profile(message: Message):
     user_data = get_user(user_id)
     lang = user_data["language"] if user_data else "🇷🇺 Русский"
     texts = LOCALIZATION[lang]
-    
     online_count = get_online_users_count()
     total_count = get_total_users_count()
 
@@ -628,7 +671,6 @@ async def show_top(message: Message):
     user_data = get_user(user_id)
     lang = user_data["language"] if user_data else "🇷🇺 Русский"
     texts = LOCALIZATION[lang]
-    
     top_list = get_top_players()
     response = texts["top_title"]
     
@@ -640,7 +682,6 @@ async def show_top(message: Message):
             display_name = f"@{username}" if username and not username.isdigit() else f"User_{p_id}"
             medal = "🥇 " if index == 1 else "🥈 " if index == 2 else "🥉 " if index == 3 else f"{index}. "
             response += f"{medal}{display_name} — <b>{wins}</b> ({matches_count})\n"
-            
     await message.answer(response)
 
 # ---------------- FIND MATCH ----------------
@@ -649,36 +690,27 @@ async def find_match(message: Message):
     user_id = message.from_user.id
     update_online(user_id)
     user_data = get_user(user_id)
-    
     if user_data and user_data.get("is_banned", 0) == 1:
         await message.answer("❌ <b>Сіз бұғатталғансыз (БАН)!</b> Матч іздеу мүмкін емес.")
         return
-
     lang = user_data["language"] if user_data else "🇷🇺 Русский"
     texts = LOCALIZATION[lang]
-
     if user_id in matches:
-        await message.answer(texts["already_in_match"])
-        return
+        await message.answer(texts["already_in_match"]); return
     if user_id in queue:
-        await message.answer(texts["already_in_queue"])
-        return
+        await message.answer(texts["already_in_queue"]); return
 
     async with lock:
         if queue:
             opponent = queue.pop(0)
             if opponent == user_id:
                 queue.append(user_id)
-                await message.answer(texts["searching"])
-                return
-
+                await message.answer(texts["searching"]); return
             matches[user_id] = opponent
             matches[opponent] = user_id
-
             host = random.choice([user_id, opponent])
             op_data = get_user(opponent)
             op_lang = op_data["language"] if op_data else "🇷🇺 Русский"
-            
             u_chat = await bot.get_chat(user_id)
             o_chat = await bot.get_chat(opponent)
             u_name = f"@{u_chat.username}" if u_chat.username else u_chat.first_name
@@ -702,24 +734,17 @@ async def end_match_request(message: Message, state: FSMContext):
     user_data = get_user(user_id)
     lang = user_data["language"] if user_data else "🇷🇺 Русский"
     texts = LOCALIZATION[lang]
-
     if user_id in queue:
-        queue.remove(user_id)
-        await message.answer(texts["search_cancelled"])
-        return
-
+        queue.remove(user_id); await message.answer(texts["search_cancelled"]); return
     if user_id not in matches:
-        await message.answer(texts["no_active_match"])
-        return
+        await message.answer(texts["no_active_match"]); return
 
     opponent = matches[user_id]
     op_data = get_user(opponent)
     op_lang = op_data["language"] if op_data else "🇷🇺 Русский"
-
     await state.set_state(MatchState.entering_score)
     op_context = dp.fsm.get_context(bot, chat_id=opponent, user_id=opponent)
     await op_context.set_state(MatchState.entering_score)
-
     await message.answer(texts["ask_score"])
     await bot.send_message(opponent, LOCALIZATION[op_lang]["ask_score"])
 
@@ -731,65 +756,45 @@ async def process_score(message: Message, state: FSMContext):
     user_data = get_user(user_id)
     lang = user_data["language"] if user_data else "🇷🇺 Русский"
     texts = LOCALIZATION[lang]
-
     if user_id not in matches:
-        await state.clear()
-        return
-
-    text = message.text.strip()
-    text = text.replace(":", "-")
-
+        await state.clear(); return
+    text = message.text.strip().replace(":", "-")
     if not re.match(r"^\d+-\d+$", text):
-        await message.answer(texts["bad_format"])
-        return
+        await message.answer(texts["bad_format"]); return
 
     opponent = matches[user_id]
     op_data = get_user(opponent)
     op_lang = op_data["language"] if op_data else "🇷🇺 Русский"
     op_texts = LOCALIZATION[op_lang]
-
     score_votes[user_id] = text
 
     if opponent not in score_votes:
-        await message.answer(texts["wait_opponent_score"])
-        return
+        await message.answer(texts["wait_opponent_score"]); return
 
-    user_score = score_votes[user_id]
-    opponent_score = score_votes[opponent]
-
+    user_score, opponent_score = score_votes[user_id], score_votes[opponent]
     my_goals, his_goals = map(int, user_score.split("-"))
     op_my_goals, op_his_goals = map(int, opponent_score.split("-"))
 
     if my_goals == op_his_goals and his_goals == op_my_goals:
         if my_goals == 0 and his_goals == 0:
-            await message.answer(texts["score_0_0"])
-            await bot.send_message(opponent, op_texts["score_0_0"])
+            await message.answer(texts["score_0_0"]); await bot.send_message(opponent, op_texts["score_0_0"])
         else:
             if my_goals > his_goals:
-                update_stats(user_id, "win")
-                update_stats(opponent, "loss")
+                update_stats(user_id, "win"); update_stats(opponent, "loss")
             elif my_goals < his_goals:
-                update_stats(user_id, "loss")
-                update_stats(opponent, "win")
+                update_stats(user_id, "loss"); update_stats(opponent, "win")
             else:
-                update_stats(user_id, "draw")
-                update_stats(opponent, "draw")
-
+                update_stats(user_id, "draw"); update_stats(opponent, "draw")
             await message.answer(texts["match_saved"].format(score=user_score))
             await bot.send_message(opponent, op_texts["match_saved"].format(score=opponent_score))
 
-        matches.pop(user_id, None)
-        matches.pop(opponent, None)
-        score_votes.pop(user_id, None)
-        score_votes.pop(opponent, None)
-        
+        matches.pop(user_id, None); matches.pop(opponent, None)
+        score_votes.pop(user_id, None); score_votes.pop(opponent, None)
         await state.clear()
         op_context = dp.fsm.get_context(bot, chat_id=opponent, user_id=opponent)
         await op_context.clear()
     else:
-        score_votes.pop(user_id, None)
-        score_votes.pop(opponent, None)
-        
+        score_votes.pop(user_id, None); score_votes.pop(opponent, None)
         await message.answer(texts["score_mismatch"].format(u_score=user_score))
         await bot.send_message(opponent, op_texts["score_mismatch"].format(u_score=opponent_score))
 
@@ -798,18 +803,14 @@ async def process_score(message: Message, state: FSMContext):
 async def relay(message: Message, state: FSMContext):
     user_id = message.from_user.id
     update_online(user_id)
-    
     if user_id not in matches:
         return
-
     current_state = await state.get_state()
     if current_state == MatchState.entering_score:
         return
-
     opponent = matches[user_id]
     op_data = get_user(opponent)
     op_lang = op_data["language"] if op_data else "🇷🇺 Русский"
-
     try:
         if message.text:
             await bot.send_message(opponent, f"{LOCALIZATION[op_lang]['relay_prefix']}\n{message.text}")
