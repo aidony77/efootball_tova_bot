@@ -4,6 +4,7 @@ import os
 import sqlite3
 import re
 import time
+import json
 
 from aiogram import Bot, Dispatcher, F
 from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton
@@ -30,7 +31,11 @@ class MatchState(StatesGroup):
     entering_score = State()
 
 # ---------------- DATABASE (SQLite) ----------------
-DB_FILE = "bot_database.db"
+# Егер Render-де Persistent Disk қоссаң, база автоматты түрде /data ішіне өшпейтін болып сақталады
+if os.path.exists("/data"):
+    DB_FILE = "/data/bot_database.db"
+else:
+    DB_FILE = "bot_database.db"
 
 def init_db():
     conn = sqlite3.connect(DB_FILE)
@@ -114,6 +119,14 @@ def get_total_users_count():
     count = cursor.fetchone()[0]
     conn.close()
     return count
+
+def get_all_user_ids():
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+    cursor.execute("SELECT user_id FROM users")
+    rows = cursor.fetchall()
+    conn.close()
+    return [row[0] for row in rows]
 
 # ---------------- DATA & ONLINE SYSTEM ----------------
 queue = []
@@ -217,7 +230,7 @@ LOCALIZATION = {
         "find_match": "🔍 Поиск матча",
         "end_match": "❌ Завершить матч",
         "profile": "👤 Мой профиль",
-        "top_players": "🏆 Топ игроки",
+        "top_players": "🏆 Top игроки",
         "rules": "📜 Правила",
         "welcome": "⚽ <b>eFootball Match Bot</b>\n\n🔥 Добро пожаловать!\n📢 Наш канал: @tova_efootball_bot_news",
         "already_in_match": "❌ Ты уже в матче",
@@ -272,7 +285,67 @@ def get_main_keyboard(lang: str) -> ReplyKeyboardMarkup:
         resize_keyboard=True
     )
 
-# ---------------- ADMIN COMMANDS ----------------
+# ---------------- ADMIN EXPORT / IMPORT ----------------
+@dp.message(Command("export_db"))
+async def admin_export_db(message: Message):
+    if message.from_user.id != ADMIN_ID:
+        return
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+    cursor.execute("SELECT user_id, username, language, matches_played, wins, draws, losses, is_banned, warns FROM users")
+    rows = cursor.fetchall()
+    conn.close()
+    
+    if not rows:
+        await message.answer("❌ База бос, экспорттайтын ештеңе жоқ.")
+        return
+        
+    data_list = []
+    for r in rows:
+        data_list.append({
+            "uid": r[0], "uname": r[1], "lang": r[2],
+            "mp": r[3], "w": r[4], "d": r[5], "l": r[6],
+            "ban": r[7], "warn": r[8]
+        })
+        
+    json_text = json.dumps(data_list, ensure_ascii=False)
+    await message.answer("📋 <b>БАЗА ДЕРЕКТЕРІНІҢ КӨШІРМЕСІ (EXPORT):</b>\n\nТөмендегі кодты толық көшіріп ал. Жаңа бот ашқанда осыны қолданасың.")
+    await message.answer(f"<code>{json_text}</code>")
+
+@dp.message(Command("import_db"))
+async def admin_import_db(message: Message):
+    if message.from_user.id != ADMIN_ID:
+        return
+    try:
+        json_data_raw = message.text.replace("/import_db", "").strip()
+        if not json_data_raw:
+            await message.answer("❌ Қате формат! Бұлай жаз: `/import_db [экспортталған_мәтін]`")
+            return
+            
+        data_list = json.loads(json_data_raw)
+        conn = sqlite3.connect(DB_FILE)
+        cursor = conn.cursor()
+        
+        imported_count = 0
+        for item in data_list:
+            cursor.execute("""
+                INSERT INTO users (user_id, username, language, matches_played, wins, draws, losses, is_banned, warns)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(user_id) DO UPDATE SET
+                    username=excluded.username, language=excluded.language,
+                    matches_played=excluded.matches_played, wins=excluded.wins,
+                    draws=excluded.draws, losses=excluded.losses,
+                    is_banned=excluded.is_banned, warns=excluded.warns
+            """, (item["uid"], item["uname"], item["lang"], item["mp"], item["w"], item["d"], item["l"], item["ban"], item["warn"]))
+            imported_count += 1
+            
+        conn.commit()
+        conn.close()
+        await message.answer(f"✅ <b>Импорт сәтті аяқталды!</b>\n📊 Жаңа базаға {imported_count} ойыншының статистикасы толық көшірілді.")
+    except Exception as e:
+        await message.answer(f"❌ Импорт кезінде қате кетті. Қате: {e}")
+
+# ---------------- ADMIN CONTROL COMMANDS ----------------
 @dp.message(Command("ban"))
 async def admin_ban(message: Message):
     if message.from_user.id != ADMIN_ID:
@@ -298,13 +371,12 @@ async def admin_unban(message: Message):
     try:
         target_id = int(message.text.split()[1])
         conn = sqlite3.connect(DB_FILE)
-        # Бәнін ашамыз және ескертулерін 0-ге түсіреміз
         conn.execute("UPDATE users SET is_banned = 0, warns = 0 WHERE user_id = ?", (target_id,))
         conn.commit()
         conn.close()
-        await message.answer(f"✅ Пайдаланушы ID {target_id} бұғаттаудан сәтті шығарылды (БАН алынды). Ескертулері нөлденді.")
+        await message.answer(f"✅ Пайдаланушы ID {target_id} бұғаттаудан сәтті шығарылды. Ескертулері нөлденді.")
         try:
-            await bot.send_message(target_id, "🔓 <b>Админ сіздің бұғаттауыңызды ашты (БАН алынды)! Қайтадан ойнай аласыз. Ереже бұзбаңыз!</b>")
+            await bot.send_message(target_id, "🔓 <b>Админ сіздің бұғаттауыңызды ашты! Қайтадан ойнай аласыз.</b>")
         except Exception:
             pass
     except Exception as e:
@@ -329,9 +401,9 @@ async def admin_warn(message: Message):
             cursor.execute("UPDATE users SET is_banned = 1 WHERE user_id = ?", (target_id,))
             conn.commit()
             conn.close()
-            await message.answer(f"⚠️ Пайдаланушы ID {target_id}-ге ескерту берілді. Жалпы варн: {current_warns}/3.\n🛑 <b>3 ескерту толғандықтан автоматты түрде БАН-ға кетті!</b>")
+            await message.answer(f"⚠️ Пайдаланушы ID {target_id}-ге ескерту берілді. Жалпы варн: {current_warns}/3.\n🛑 <b>Автоматты түрде БАН-ға кетті!</b>")
             try:
-                await bot.send_message(target_id, f"⚠️ <b>Сізге әкімші тарапынан ескерту (ВАРН) берілді!</b>\n📝 Себебі: {reason}\n\n🛑 <b>Ескерту саны 3/3-ке жетті! Сіз автоматты түрде БАН-ға кеттіңіз!</b>")
+                await bot.send_message(target_id, f"⚠️ <b>Сізге ескерту (ВАРН) берілді!</b>\n📝 Себебі: {reason}\n\n🛑 <b>Ескерту саны 3/3-ке жетті! Сіз автоматты түрде БАН-ға кеттіңіз!</b>")
             except Exception:
                 pass
         else:
@@ -339,7 +411,7 @@ async def admin_warn(message: Message):
             conn.close()
             await message.answer(f"⚠️ Пайдаланушы ID {target_id}-ге ескерту берілді. Қазіргі варн саны: {current_warns}/3.")
             try:
-                await bot.send_message(target_id, f"⚠️ <b>Сізге әкімші тарапынан ескерту (ВАРН) берілді!</b>\n📝 Себебі: {reason}\n📉 Қазіргі ескерту саны: <b>{current_warns}/3</b>.\n\n<i>Егер 3 ескерту жиналса, автоматты түрде БАН аласыз!</i>")
+                await bot.send_message(target_id, f"⚠️ <b>Сізге ескерту (ВАРН) берілді!</b>\n📝 Себебі: {reason}\n📉 Қазіргі ескерту саны: <b>{current_warns}/3</b>.")
             except Exception:
                 pass
     except Exception as e:
@@ -362,7 +434,7 @@ async def admin_unwarn(message: Message):
             conn.commit()
             await message.answer(f"✅ Пайдаланушы ID {target_id}-ден 1 ескерту алынды. Қазіргі варн: {current_warns}/3.")
             try:
-                await bot.send_message(target_id, f"✅ <b>Әкімші сіздің 1 ескертуіңізді (ВАРН) алып тастады!</b>\n📉 Қазіргі ескерту саны: <b>{current_warns}/3</b>.")
+                await bot.send_message(target_id, f"✅ <b>Әкімші сіздің 1 ескертуіңізді алып тастады!</b>\n📉 Қазіргі ескерту саны: <b>{current_warns}/3</b>.")
             except Exception:
                 pass
         else:
@@ -419,10 +491,18 @@ async def admin_set_score(message: Message):
         return
     try:
         args = message.text.split()
+        if len(args) < 4:
+            await message.answer("❌ Қате формат!\nҮлгі: `/setscore [ID_1] [ID_2] [Есеп]`\nМысалы: `/setscore 12345 67890 3-1`")
+            return
+            
         id1 = int(args[1])
         id2 = int(args[2])
         score = args[3].replace(":", "-")
         
+        if not re.match(r"^\d+-\d+$", score):
+            await message.answer("❌ Қате есеп форматы! Тек `3-1` немесе `2-2` сияқты жазыңыз.")
+            return
+            
         g1, g2 = map(int, score.split("-"))
         if g1 > g2:
             update_stats(id1, "win")
@@ -434,9 +514,43 @@ async def admin_set_score(message: Message):
             update_stats(id1, "draw")
             update_stats(id2, "draw")
             
-        await message.answer(f"✅ Матч есебі админ арқылы жазылды!\nID {id1} ({g1}) - ({g2}) ID {id2}")
+        await message.answer(f"✅ Матч есебі админ арқылы сәтті жазылды!\n🎯 <b>ID {id1}</b> [{g1}] - [{g2}] <b>ID {id2}</b>\nСтатистикалары жаңартылды!")
+        
+        try:
+            await bot.send_message(id1, f"📝 <b>Әкімші сіздің соңғы матчыңыздың есебін қолмен енгізді!</b>\nЕсеп: {score}. Статистикаңыз жаңартылды.")
+            await bot.send_message(id2, f"📝 <b>Әкімші сіздің соңғы матчыңыздың есебін қолмен енгізді!</b>\nЕсеп: {g2}-{g1}. Статистикаңыз жаңартылды.")
+        except Exception:
+            pass
+            
     except Exception as e:
-        await message.answer("❌ Қате формат! Мысалы: `/setscore [id1] [id2] [3-1]`")
+        await message.answer(f"❌ Қате орындалды: {e}")
+
+@dp.message(Command("broadcast"))
+async def admin_broadcast(message: Message):
+    if message.from_user.id != ADMIN_ID:
+        return
+        
+    broadcast_text = message.text.replace("/broadcast", "").strip()
+    
+    if not broadcast_text:
+        await message.answer("❌ Жазатын мәтін бос! Үлгі:\n`/broadcast Бүгін кешке турнир басталады!`")
+        return
+        
+    user_ids = get_all_user_ids()
+    await message.answer(f"📢 <b>Рассылка басталды!</b>\n👥 Барлық пайдаланушылар саны: {len(user_ids)}\nКүте тұрыңыз...")
+    
+    success = 0
+    failed = 0
+    
+    for uid in user_ids:
+        try:
+            await bot.send_message(chat_id=uid, text=broadcast_text)
+            success += 1
+            await asyncio.sleep(0.05)
+        except Exception:
+            failed += 1
+            
+    await message.answer(f"✅ <b>Рассылка аяқталды!</b>\n🟢 Сәтті жеткізілді: {success}\n🔴 Жеткізілмеді: {failed}")
 
 @dp.message(Command("report"))
 async def report_user(message: Message):
